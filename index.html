@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CityFox | Content Studio Rental</title>
+
+    <!-- Fonts: Inter for that clean iOS system-ui look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                        display: ['Sora', 'Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        ios: {
+                            light: '#F5F5F7',
+                            dark: '#000000',
+                            cardLight: '#FFFFFF',
+                            cardDark: '#1C1C1E',
+                        }
+                    },
+                    borderRadius: {
+                        '4xl': '2rem',
+                        '5xl': '2.5rem',
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 40px -10px rgba(0,0,0,0.08)',
+                        'glow': '0 0 40px rgba(255,255,255,0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: #F5F5F7;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Glassmorphism utilities */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: saturate(180%) blur(24px);
+            -webkit-backdrop-filter: saturate(180%) blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .dark .glass-nav {
+            background: rgba(28, 28, 30, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .gallery-item { transform: translateZ(0); transition: opacity 0.4s ease, transform 0.4s ease; }
+        .gallery-item img { transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        .gallery-item:hover img { transform: scale(1.04); }
+        .dark .gallery-item img { filter: brightness(0.9); }
+        .dark .gallery-item:hover img { filter: brightness(1.1); }
+
+        #lightbox { opacity: 0; visibility: hidden; transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s; }
+        #lightbox.active { opacity: 1; visibility: visible; }
+        #lightbox-img { transform: scale(0.95); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        #lightbox.active #lightbox-img { transform: scale(1); }
+
+        body.modal-open { overflow: hidden; }
+
+        #ios-alert {
+            opacity: 0; visibility: hidden;
+            transform: scale(0.9) translate(-50%, -50%);
+            transform-origin: top left;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #ios-alert.active { opacity: 1; visibility: visible; transform: scale(1) translate(-50%, -50%); }
+
+        /* --- Slot / Package selectable buttons (iOS segmented style) --- */
+        .option-btn {
+            transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .option-btn:not(:disabled):hover { transform: translateY(-2px); }
+        .option-btn:not(:disabled):active { transform: scale(0.97); }
+        .option-btn.selected {
+            background: #111827; color: #fff; border-color: #111827;
+            box-shadow: 0 10px 30px -8px rgba(0,0,0,0.35);
+        }
+        .dark .option-btn.selected {
+            background: #fff; color: #111827; border-color: #fff;
+            box-shadow: 0 0 30px rgba(255,255,255,0.18);
+        }
+        .option-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .option-btn:disabled .slot-time { text-decoration: line-through; }
+    </style>
+</head>
+<body class="bg-ios-light dark:bg-ios-dark text-gray-900 dark:text-gray-100 transition-colors duration-500 pb-36 md:pb-0">
+
+    <!-- Floating Glass Navigation (Desktop) -->
+    <nav class="hidden md:flex fixed top-4 left-1/2 transform -translate-x-1/2 w-[95%] max-w-7xl z-40 glass-nav rounded-full px-6 py-3 shadow-soft dark:shadow-glow justify-between items-center transition-all duration-300">
+        <a href="#" class="text-xl font-semibold tracking-tight flex items-center gap-2">
+            <img src="assets/cityfox.png.jpeg" alt="CityFox" class="h-12 w-auto object-contain rounded-xl bg-white px-1.5 py-1">
+            CityFox
+        </a>
+        <div class="flex items-center space-x-8 text-sm font-medium">
+            <a href="#explore" class="hover:text-gray-500 dark:hover:text-gray-400 transition-colors">Explore Studio</a>
+            <a href="#about" class="hover:text-gray-500 dark:hover:text-gray-400 transition-colors">About</a>
+            <a href="#services" class="hover:text-gray-500 dark:hover:text-gray-400 transition-colors">Services</a>
+        </div>
+        <div class="flex items-center gap-3">
+            <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" aria-label="Toggle Dark Mode">
+                <i class="ph ph-moon text-lg dark:hidden"></i>
+                <i class="ph ph-sun text-lg hidden dark:block"></i>
+            </button>
+            <a href="#contact" class="bg-gray-900 text-white dark:bg-white dark:text-black px-5 py-2.5 rounded-full text-sm font-medium hover:scale-105 transition-transform duration-300">
+                Book Session
+            </a>
+        </div>
+    </nav>
+
+    <!-- Mobile Top Bar -->
+    <nav class="md:hidden fixed top-0 w-full z-40 glass-nav px-6 py-4 flex justify-between items-center border-b-0 rounded-b-3xl shadow-sm">
+        <a href="#" class="text-xl font-semibold tracking-tight flex items-center gap-2">
+            <img src="assets/cityfox.png.jpeg" alt="CityFox" class="h-11 w-auto object-contain rounded-xl bg-white px-1.5 py-1">
+            CityFox
+        </a>
+        <div class="flex items-center gap-2">
+            <a href="#contact" class="bg-gray-900 text-white dark:bg-white dark:text-black px-4 py-2 rounded-full text-sm font-medium hover:scale-105 transition-transform duration-300 flex items-center gap-1.5">
+                <i class="ph ph-calendar-plus text-base"></i>
+                Book Slot
+            </a>
+            <button id="theme-toggle-mobile" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" aria-label="Toggle Dark Mode">
+                <i class="ph ph-moon text-lg dark:hidden"></i>
+                <i class="ph ph-sun text-lg hidden dark:block"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Bottom Tab Bar -->
+    <nav class="md:hidden fixed bottom-14 left-1/2 transform -translate-x-1/2 w-[90%] z-40 glass-nav rounded-3xl px-6 py-3 shadow-soft dark:shadow-glow flex justify-between items-center">
+        <a href="#explore" class="flex flex-col items-center gap-1 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
+            <i class="ph ph-squares-four text-2xl"></i>
+            <span class="text-[10px] font-medium">Explore</span>
+        </a>
+        <a href="#about" class="flex flex-col items-center gap-1 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
+            <i class="ph ph-info text-2xl"></i>
+            <span class="text-[10px] font-medium">About</span>
+        </a>
+        <a href="#services" class="flex flex-col items-center gap-1 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
+            <i class="ph ph-camera text-2xl"></i>
+            <span class="text-[10px] font-medium">Services</span>
+        </a>
+        <a href="#contact" class="flex flex-col items-center gap-1 text-blue-500 dark:text-blue-400 transition-colors">
+            <i class="ph ph-calendar-plus text-2xl"></i>
+            <span class="text-[10px] font-medium">Book</span>
+        </a>
+    </nav>
+
+    <!-- Explore Studio Section -->
+    <main id="explore" class="max-w-7xl mx-auto px-6 pt-28 md:pt-36 mb-32 scroll-mt-32">
+        <div class="text-center mb-12 flex flex-col items-center">
+            <h1 class="text-4xl md:text-6xl font-bold tracking-tight mb-8">Explore Studio</h1>
+
+            <div class="w-full grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
+                <div class="relative h-48 md:h-64 rounded-[2rem] overflow-hidden group shadow-sm">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Portraits Collection" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
+                    <div class="absolute bottom-4 left-4 right-4 glass-nav rounded-2xl p-4 flex justify-between items-center border border-white/20">
+                        <span class="font-semibold text-white">Portraits</span>
+                        <div class="w-8 h-8 rounded-full bg-white/30 flex items-center justify-center backdrop-blur-md text-white">
+                            <i class="ph ph-arrow-right text-sm"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative h-48 md:h-64 rounded-[2rem] overflow-hidden group shadow-sm">
+                    <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Nature Collection" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
+                    <div class="absolute bottom-4 left-4 right-4 glass-nav rounded-2xl p-4 flex justify-between items-center border border-white/20">
+                        <span class="font-semibold text-white">Nature</span>
+                        <div class="w-8 h-8 rounded-full bg-white/30 flex items-center justify-center backdrop-blur-md text-white">
+                            <i class="ph ph-arrow-right text-sm"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative h-48 md:h-64 rounded-[2rem] overflow-hidden group shadow-sm">
+                    <img src="https://images.unsplash.com/photo-1449844908441-8829872d2607?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Urban Collection" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300"></div>
+                    <div class="absolute bottom-4 left-4 right-4 glass-nav rounded-2xl p-4 flex justify-between items-center border border-white/20">
+                        <span class="font-semibold text-white">Urban</span>
+                        <div class="w-8 h-8 rounded-full bg-white/30 flex items-center justify-center backdrop-blur-md text-white">
+                            <i class="ph ph-arrow-right text-sm"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gallery: each container is its own 2-photo swiper with its own dots -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="gallery">
+            <!-- Swiper 1 -->
+            <div class="photo-swiper">
+                <div class="swiper-track no-scrollbar shadow-sm flex overflow-x-auto snap-x snap-mandatory scroll-smooth rounded-[2rem]">
+                    <div class="swiper-slide gallery-item relative shrink-0 w-full snap-center overflow-hidden cursor-zoom-in group bg-gray-200 dark:bg-gray-800 aspect-[4/5]" data-category="portraits" onclick="openLightbox(this)">
+                        <img src="assets/IMG_1.JPG.jpeg" loading="lazy">
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                    </div>
+                    <div class="swiper-slide gallery-item relative shrink-0 w-full snap-center overflow-hidden cursor-zoom-in group bg-gray-200 dark:bg-gray-800 aspect-[4/5]" data-category="urban" onclick="openLightbox(this)">
+                        <img src="assets/IMG_2.JPG.jpeg" alt="Urban Architecture" class="w-full h-full object-cover block" loading="lazy">
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                    </div>
+                </div>
+                <div class="swiper-dots flex justify-center items-center gap-2 mt-4"></div>
+            </div>
+
+            <!-- Swiper 2 -->
+            <div class="photo-swiper">
+                <div class="swiper-track no-scrollbar shadow-sm flex overflow-x-auto snap-x snap-mandatory scroll-smooth rounded-[2rem]">
+                    <div class="swiper-slide gallery-item relative shrink-0 w-full snap-center overflow-hidden cursor-zoom-in group bg-gray-200 dark:bg-gray-800 aspect-[4/5]" data-category="nature" onclick="openLightbox(this)">
+                        <img src="assets/IMG_3.JPG.jpeg" alt="Nature Landscape" class="w-full h-full object-cover block" loading="lazy">
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                    </div>
+                    <div class="swiper-slide gallery-item relative shrink-0 w-full snap-center overflow-hidden cursor-zoom-in group bg-gray-200 dark:bg-gray-800 aspect-[4/5]" data-category="portraits" onclick="openLightbox(this)">
+                        <img src="assets/IMG_4.JPG.jpeg" alt="Portrait Male" class="w-full h-full object-cover block" loading="lazy">
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                    </div>
+                </div>
+                <div class="swiper-dots flex justify-center items-center gap-2 mt-4"></div>
+            </div>
+
+            <!-- Swiper 3 -->
+            <div class="photo-swiper">
+                <div class="swiper-track no-scrollbar shadow-sm flex overflow-x-auto snap-x snap-mandatory scroll-smooth rounded-[2rem]">
+                    <div class="swiper-slide gallery-item relative shrink-0 w-full snap-center overflow-hidden cursor-zoom-in group bg-gray-200 dark:bg-gray-800 aspect-[4/5]" data-category="urban" onclick="openLightbox(this)">
+                        <img src="assets/IMG_5.JPG.jpeg" loading="lazy">
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                    </div>
+                    <div class="swiper-slide gallery-item relative shrink-0 w-full snap-center overflow-hidden cursor-zoom-in group bg-gray-200 dark:bg-gray-800 aspect-[4/5]" data-category="nature" onclick="openLightbox(this)">
+                        <img src="assets/IMG_6.JPG.jpeg" alt="Mountain Landscape" class="w-full h-full object-cover block" loading="lazy">
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                    </div>
+                </div>
+                <div class="swiper-dots flex justify-center items-center gap-2 mt-4"></div>
+            </div>
+
+            <!-- Swiper 4 -->
+            <div class="photo-swiper">
+                <div class="swiper-track no-scrollbar shadow-sm flex overflow-x-auto snap-x snap-mandatory scroll-smooth rounded-[2rem]">
+                    <div class="swiper-slide gallery-item relative shrink-0 w-full snap-center overflow-hidden cursor-zoom-in group bg-gray-200 dark:bg-gray-800 aspect-[4/5]" data-category="portraits" onclick="openLightbox(this)">
+                        <img src="assets/IMG_7.JPG.jpeg" alt="Portrait Studio" class="w-full h-full object-cover block" loading="lazy">
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                    </div>
+                    <div class="swiper-slide gallery-item relative shrink-0 w-full snap-center overflow-hidden cursor-zoom-in group bg-gray-200 dark:bg-gray-800 aspect-[4/5]" data-category="urban" onclick="openLightbox(this)">
+                        <img src="assets/IMG_8.JPG.jpeg" alt="Still life object" class="w-full h-full object-cover block" loading="lazy">
+                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300"></div>
+                    </div>
+                </div>
+                <div class="swiper-dots flex justify-center items-center gap-2 mt-4"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- About Section -->
+    <section id="about" class="max-w-7xl mx-auto px-6 mb-32 scroll-mt-32">
+        <div class="flex flex-col lg:flex-row items-center gap-16">
+            <div class="flex-1 w-full relative">
+                <div class="aspect-square rounded-[3rem] overflow-hidden shadow-soft">
+                    <img src="assets/imagePhoto.png" alt="Photographer in studio" class="w-full h-full object-cover">
+                </div>
+                <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-gray-200/50 dark:bg-gray-800/50 backdrop-blur-2xl rounded-full border border-white/40 dark:border-gray-700/40 -z-10"></div>
+            </div>
+            <div class="flex-1 space-y-8">
+                <h2 class="text-4xl md:text-5xl font-bold tracking-tight">Focusing on what<br>truly matters.</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Based in the City of Coimbatore, CityFox Content Studio is dedicated to capturing life's purest moments through a modern, minimalist lens. We believe that true beauty lies in simplicity and authenticity.
+                </p>
+                <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                  With good handful experience, our approach is heavily inspired by clean architectural lines, natural light, and the quiet spaces between interactions.
+                </p>
+                <div class="grid grid-cols-2 gap-8 pt-4">
+                    <div>
+                        <h4 class="text-3xl font-bold text-gray-900 dark:text-white mb-1">50+</h4>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Our Clients</p>
+                    </div>
+                    <div>
+                        <h4 class="text-3xl font-bold text-gray-900 dark:text-white mb-1">100+</h4>
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Projects Delivered</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="max-w-7xl mx-auto px-6 mb-32 scroll-mt-32">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold tracking-tight">Our Services</h2>
+            <p class="text-gray-600 dark:text-gray-400 mt-4 max-w-xl mx-auto">Tailored photographic experiences designed with precision.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white dark:bg-ios-cardDark rounded-[2.5rem] p-10 shadow-soft hover:shadow-xl transition-all duration-300 hover:-translate-y-2 hover:scale-[1.02] flex flex-col items-start border border-gray-100 dark:border-gray-800">
+                <div class="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-6">
+                    <i class="ph ph-user-focus text-2xl text-gray-900 dark:text-white"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Portrait Photography</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-6 flex-grow">
+                    Personalized editorial and professional portraits focused on authentic expressions and striking lighting.
+                </p>
+                <a href="#contact" class="text-sm font-semibold hover:opacity-70 transition-opacity flex items-center gap-1">
+                    Book session <i class="ph ph-arrow-right"></i>
+                </a>
+            </div>
+            <div class="bg-white dark:bg-ios-cardDark rounded-[2.5rem] p-10 shadow-soft hover:shadow-xl transition-all duration-300 hover:-translate-y-2 hover:scale-[1.02] md:-translate-y-4 md:hover:-translate-y-6 flex flex-col items-start border-2 border-orange-500 ring-4 ring-orange-500/15">
+                <div class="w-14 h-14 rounded-full bg-orange-500/10 flex items-center justify-center mb-6 text-orange-600 dark:text-orange-400">
+                    <i class="ph ph-buildings text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Commercial & Urban</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-6 flex-grow">
+                    High-end architectural, product, and brand storytelling designed to elevate your visual identity.
+                </p>
+                <a href="#contact" class="text-sm font-semibold hover:opacity-70 transition-opacity flex items-center gap-1">
+                    Book session <i class="ph ph-arrow-right"></i>
+                </a>
+            </div>
+            <div class="bg-white dark:bg-ios-cardDark rounded-[2.5rem] p-10 shadow-soft hover:shadow-xl transition-all duration-300 hover:-translate-y-2 hover:scale-[1.02] flex flex-col items-start border border-gray-100 dark:border-gray-800">
+                <div class="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-6">
+                    <i class="ph ph-camera text-2xl text-gray-900 dark:text-white"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Event Coverage</h3>
+                <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-6 flex-grow">
+                    Discreet, documentary-style photography for exclusive events, ensuring no vital moment is missed.
+                </p>
+                <a href="#contact" class="text-sm font-semibold hover:opacity-70 transition-opacity flex items-center gap-1">
+                    Book session <i class="ph ph-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Book a Session Section (plans on top, form below) -->
+    <section id="contact" class="max-w-7xl mx-auto px-6 mb-16 scroll-mt-32">
+        <!-- Studio Rental Packages (iOS pricing cards) -->
+        <div class="text-center mb-12">
+            <span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-500 dark:text-blue-400 bg-blue-500/10 px-4 py-1.5 rounded-full mb-5">
+                <i class="ph ph-tag"></i> Studio Rental
+            </span>
+            <h2 class="text-4xl md:text-5xl font-bold tracking-tight">Our Pricing</h2>
+            <p class="text-gray-600 dark:text-gray-400 mt-4 max-w-xl mx-auto">
+                Fully-equipped content studio, charged by the hour. Longer bookings unlock a lower hourly rate.
+            </p>
+            <p class="text-sm font-medium text-gray-400 dark:text-gray-500 mt-2">Standard rate &middot; &#8377;699 / hour</p>
+        </div>
+
+        <!-- Diwali Hot Offer (limited time) -->
+        <div id="diwali-offer" class="relative mb-6 rounded-[2rem] p-[2.5px] bg-gradient-to-r from-amber-400 via-orange-500 to-pink-600 shadow-xl">
+            <div class="relative rounded-[1.9rem] bg-white dark:bg-ios-cardDark p-6 md:p-8 overflow-hidden">
+                <div class="absolute -top-12 -right-12 w-48 h-48 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-12 -left-12 w-48 h-48 bg-amber-400/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div class="flex-1">
+                        <div class="flex flex-wrap items-center gap-2 mb-3">
+                            <span class="inline-flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-pink-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow animate-pulse">
+                                &#128293; HOT OFFER
+                            </span>
+                            <span class="inline-flex items-center gap-1.5 bg-amber-400/20 text-amber-700 dark:text-amber-300 text-[11px] font-bold px-3 py-1.5 rounded-full">
+                                &#129380; Diwali Sale
+                            </span>
+                            <span id="diwali-days" class="inline-flex items-center gap-1.5 bg-red-500/10 text-red-600 dark:text-red-400 text-[11px] font-bold px-3 py-1.5 rounded-full"></span>
+                        </div>
+                        <h3 class="font-display text-2xl font-bold tracking-tight mb-1">First Frame &mdash; Diwali Special</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">1 hour studio session &middot; book up to 2 hours at this price</p>
+                        <div class="flex items-end gap-2">
+                            <span class="text-4xl font-bold tracking-tight text-orange-600 dark:text-orange-400">&#8377;299</span>
+                            <span class="text-lg font-medium text-gray-400 line-through mb-1">&#8377;699</span>
+                            <span class="text-xs font-semibold text-green-600 dark:text-green-400 mb-1.5">Save &#8377;400 / hour</span>
+                        </div>
+                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">Valid 1&ndash;6 November &middot; max 2 hours per booking</p>
+                    </div>
+                    <div class="shrink-0 w-full md:w-auto">
+                        <button type="button" data-pkg="diwali" class="plan-select-btn w-full md:w-auto text-center bg-gradient-to-r from-orange-500 to-pink-600 hover:opacity-90 text-white font-bold px-8 py-3.5 rounded-2xl transition-opacity text-sm shadow-lg">
+                            Grab this deal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- First Frame -->
+            <div class="relative bg-white dark:bg-ios-cardDark rounded-[2rem] p-7 shadow-soft hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col border-2 border-orange-500">
+                <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[11px] font-bold px-4 py-1.5 rounded-full shadow-lg whitespace-nowrap">
+                    &#9889; First Frame
+                </span>
+                <div class="flex items-center justify-between mb-5">
+                    <div class="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-900 dark:text-white">
+                        <i class="ph ph-lightning text-xl"></i>
+                    </div>
+                    <span class="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide">Standard</span>
+                </div>
+                <h3 class="font-display text-xl font-semibold tracking-tight mb-1">Content Wallet</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">1 Hour</p>
+                <div class="flex items-end gap-1 mb-1">
+                    <span class="text-3xl font-bold tracking-tight">&#8377;699</span>
+                </div>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mb-5">&#8377;699 / hour</p>
+                <button type="button" data-pkg="quick" class="plan-select-btn mt-auto w-full text-center bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-semibold py-3 rounded-2xl transition-colors text-sm">
+                    Select
+                </button>
+            </div>
+
+            <!-- Creator Pack (Most Popular) -->
+            <div class="relative bg-white dark:bg-ios-cardDark rounded-[2rem] p-7 shadow-soft hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col border-2 border-orange-500">
+                <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[11px] font-bold px-4 py-1.5 rounded-full shadow-lg whitespace-nowrap">
+                    &#11088; Most Popular
+                </span>
+                <div class="flex items-center justify-between mb-5">
+                    <div class="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-600 dark:text-orange-400">
+                        <i class="ph ph-star text-xl"></i>
+                    </div>
+                    <span class="text-[11px] font-semibold text-orange-600 dark:text-orange-400 uppercase tracking-wide">Save &#8377;298</span>
+                </div>
+                <h3 class="font-display text-xl font-semibold tracking-tight mb-1">Content Vault</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">3 Hours</p>
+                <div class="flex items-end gap-1 mb-1">
+                    <span class="text-3xl font-bold tracking-tight">&#8377;1,799</span>
+                </div>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mb-5">&#8377;599.67 / hour</p>
+                <button type="button" data-pkg="creator" class="plan-select-btn mt-auto w-full text-center bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-2xl transition-colors text-sm">
+                    Select
+                </button>
+            </div>
+
+            <!-- Half-Day (Best Deal) -->
+            <div class="relative bg-white dark:bg-ios-cardDark rounded-[2rem] p-7 shadow-soft hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col border-2 border-orange-500">
+                <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[11px] font-bold px-4 py-1.5 rounded-full shadow-lg whitespace-nowrap">
+                    &#128293; Best Deal
+                </span>
+                <div class="flex items-center justify-between mb-5">
+                    <div class="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-900 dark:text-white">
+                        <i class="ph ph-sun-horizon text-xl"></i>
+                    </div>
+                    <span class="text-[11px] font-semibold text-green-600 dark:text-green-400 uppercase tracking-wide">Save &#8377;695</span>
+                </div>
+                <h3 class="font-display text-xl font-semibold tracking-tight mb-1">Content Bank</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">6 Hours</p>
+                <div class="flex items-end gap-1 mb-1">
+                    <span class="text-3xl font-bold tracking-tight">&#8377;3,499</span>
+                </div>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mb-5">&#8377;583.17 / hour</p>
+                <button type="button" data-pkg="halfday" class="plan-select-btn mt-auto w-full text-center bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-semibold py-3 rounded-2xl transition-colors text-sm">
+                    Select
+                </button>
+            </div>
+
+            <!-- Full-Day (Maximum Savings) -->
+            <div class="relative bg-white dark:bg-ios-cardDark rounded-[2rem] p-7 shadow-soft hover:shadow-lg transition-all duration-300 hover:-translate-y-1 flex flex-col border-2 border-orange-500">
+                <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[11px] font-bold px-4 py-1.5 rounded-full shadow-lg whitespace-nowrap">
+                    &#128081; Max Savings
+                </span>
+                <div class="flex items-center justify-between mb-5">
+                    <div class="w-12 h-12 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-900 dark:text-white">
+                        <i class="ph ph-crown text-xl"></i>
+                    </div>
+                    <span class="text-[11px] font-semibold text-green-600 dark:text-green-400 uppercase tracking-wide">Save &#8377;1,589</span>
+                </div>
+                <h3 class="font-display text-xl font-semibold tracking-tight mb-1">Content Treasure</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">12 Hours</p>
+                <div class="flex items-end gap-1 mb-1">
+                    <span class="text-3xl font-bold tracking-tight">&#8377;6,799</span>
+                </div>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mb-5">&#8377;566.58 / hour</p>
+                <button type="button" data-pkg="fullday" class="plan-select-btn mt-auto w-full text-center bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-semibold py-3 rounded-2xl transition-colors text-sm">
+                    Select
+                </button>
+            </div>
+        </div>
+
+        <p class="text-center text-xs text-gray-400 dark:text-gray-500 mt-8 mb-16 max-w-2xl mx-auto">
+            Studio open 9:00 AM &ndash; 9:00 PM &middot; 12 hrs daily capacity. All figures are projections &mdash; final availability is confirmed on booking.
+        </p>
+
+        <div class="max-w-4xl mx-auto bg-white dark:bg-ios-cardDark rounded-[3rem] p-8 md:p-12 shadow-soft transition-colors duration-500 border border-gray-100 dark:border-gray-800 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+
+            <div class="text-center mb-10 relative z-10">
+                <h2 class="text-4xl md:text-5xl font-bold tracking-tight mb-4">Book a Slot</h2>
+                <p class="text-gray-500 dark:text-gray-400">Pick a package, choose your date, and grab an available slot. We'll confirm instantly.</p>
+            </div>
+
+            <form id="booking-form" class="space-y-8 relative z-10">
+                <!-- Name & Mobile -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label for="name" class="text-sm font-medium text-gray-700 dark:text-gray-300 ml-1">Name</label>
+                        <input type="text" id="name" required class="w-full bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white rounded-2xl px-5 py-4 border-none focus:ring-2 focus:ring-blue-500 outline-none transition-shadow" placeholder="P. Ramanujam">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="phone" class="text-sm font-medium text-gray-700 dark:text-gray-300 ml-1">Mobile</label>
+                        <input type="tel" id="phone" required pattern="[0-9+ ]{7,15}" class="w-full bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white rounded-2xl px-5 py-4 border-none focus:ring-2 focus:ring-blue-500 outline-none transition-shadow" placeholder="9344067723">
+                    </div>
+                </div>
+
+                <!-- STEP 1: Choose Package(s) -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between ml-1">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-[11px] font-bold">1</span>
+                            Choose Your Package(s)
+                        </label>
+                        <span class="text-[11px] text-gray-400 dark:text-gray-500">Mix &amp; match &mdash; they add up</span>
+                    </div>
+                    <div id="package-options" class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div class="option-btn pkg-card bg-amber-50 dark:bg-orange-950/30 rounded-2xl px-4 py-3.5 border-2 border-orange-400/70" data-pkg="diwali">
+                            <span class="block text-sm font-semibold text-orange-600 dark:text-orange-400">&#128293; Diwali Special</span>
+                            <span class="block text-xs opacity-60 mt-0.5">1 Hour &middot; max 2</span>
+                            <span class="block text-sm font-bold mt-1.5">&#8377;299 <span class="text-xs font-medium text-gray-400 line-through">&#8377;699</span></span>
+                            <div class="flex items-center justify-between mt-3">
+                                <button type="button" class="pkg-step w-7 h-7 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-lg leading-none font-bold disabled:opacity-30" data-pkg="diwali" data-step="-1" aria-label="Remove one">&minus;</button>
+                                <span class="pkg-qty text-sm font-bold w-6 text-center" data-pkg="diwali">0</span>
+                                <button type="button" class="pkg-step w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center text-lg leading-none font-bold disabled:opacity-30 disabled:cursor-not-allowed" data-pkg="diwali" data-step="1" aria-label="Add one">+</button>
+                            </div>
+                        </div>
+                        <div class="option-btn pkg-card bg-gray-100 dark:bg-gray-900 rounded-2xl px-4 py-3.5 border-2 border-transparent" data-pkg="quick">
+                            <span class="block text-sm font-semibold">First Frame</span>
+                            <span class="block text-xs opacity-60 mt-0.5">1 Hour</span>
+                            <span class="block text-sm font-bold mt-1.5">&#8377;699</span>
+                            <div class="flex items-center justify-between mt-3">
+                                <button type="button" class="pkg-step w-7 h-7 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-lg leading-none font-bold disabled:opacity-30" data-pkg="quick" data-step="-1" aria-label="Remove one">&minus;</button>
+                                <span class="pkg-qty text-sm font-bold w-6 text-center" data-pkg="quick">0</span>
+                                <button type="button" class="pkg-step w-7 h-7 rounded-full bg-gray-900 text-white dark:bg-white dark:text-gray-900 flex items-center justify-center text-lg leading-none font-bold disabled:opacity-30 disabled:cursor-not-allowed" data-pkg="quick" data-step="1" aria-label="Add one">+</button>
+                            </div>
+                        </div>
+                        <div class="option-btn pkg-card bg-gray-100 dark:bg-gray-900 rounded-2xl px-4 py-3.5 border-2 border-transparent" data-pkg="creator">
+                            <span class="block text-sm font-semibold">Creator Pack &#11088;</span>
+                            <span class="block text-xs opacity-60 mt-0.5">3 Hours</span>
+                            <span class="block text-sm font-bold mt-1.5">&#8377;1,799</span>
+                            <div class="flex items-center justify-between mt-3">
+                                <button type="button" class="pkg-step w-7 h-7 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-lg leading-none font-bold disabled:opacity-30" data-pkg="creator" data-step="-1" aria-label="Remove one">&minus;</button>
+                                <span class="pkg-qty text-sm font-bold w-6 text-center" data-pkg="creator">0</span>
+                                <button type="button" class="pkg-step w-7 h-7 rounded-full bg-gray-900 text-white dark:bg-white dark:text-gray-900 flex items-center justify-center text-lg leading-none font-bold disabled:opacity-30 disabled:cursor-not-allowed" data-pkg="creator" data-step="1" aria-label="Add one">+</button>
+                            </div>
+                        </div>
+                        <div class="option-btn pkg-card bg-gray-100 dark:bg-gray-900 rounded-2xl px-4 py-3.5 border-2 border-transparent" data-pkg="halfday">
+                            <span class="block text-sm font-semibold">Half-Day &#128293;</span>
+                            <span class="block text-xs opacity-60 mt-0.5">6 Hours</span>
+                            <span class="block text-sm font-bold mt-1.5">&#8377;3,499</span>
+                            <div class="flex items-center justify-between mt-3">
+                                <button type="button" class="pkg-step w-7 h-7 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-lg leading-none font-bold disabled:opacity-30" data-pkg="halfday" data-step="-1" aria-label="Remove one">&minus;</button>
+                                <span class="pkg-qty text-sm font-bold w-6 text-center" data-pkg="halfday">0</span>
+                                <button type="button" class="pkg-step w-7 h-7 rounded-full bg-gray-900 text-white dark:bg-white dark:text-gray-900 flex items-center justify-center text-lg leading-none font-bold disabled:opacity-30 disabled:cursor-not-allowed" data-pkg="halfday" data-step="1" aria-label="Add one">+</button>
+                            </div>
+                        </div>
+                        <div class="option-btn pkg-card bg-gray-100 dark:bg-gray-900 rounded-2xl px-4 py-3.5 border-2 border-transparent" data-pkg="fullday">
+                            <span class="block text-sm font-semibold">Full-Day &#128081;</span>
+                            <span class="block text-xs opacity-60 mt-0.5">12 Hours</span>
+                            <span class="block text-sm font-bold mt-1.5">&#8377;6,799</span>
+                            <div class="flex items-center justify-between mt-3">
+                                <button type="button" class="pkg-step w-7 h-7 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center text-lg leading-none font-bold disabled:opacity-30" data-pkg="fullday" data-step="-1" aria-label="Remove one">&minus;</button>
+                                <span class="pkg-qty text-sm font-bold w-6 text-center" data-pkg="fullday">0</span>
+                                <button type="button" class="pkg-step w-7 h-7 rounded-full bg-gray-900 text-white dark:bg-white dark:text-gray-900 flex items-center justify-center text-lg leading-none font-bold disabled:opacity-30 disabled:cursor-not-allowed" data-pkg="fullday" data-step="1" aria-label="Add one">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    <p id="cart-hours" class="hidden text-sm font-semibold text-center bg-gray-50 dark:bg-gray-900/60 rounded-xl py-2.5"></p>
+                </div>
+
+                <!-- STEP 2: Preferred Date -->
+                <div class="space-y-3">
+                    <label for="date" class="text-sm font-medium text-gray-700 dark:text-gray-300 ml-1 flex items-center gap-2">
+                        <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-[11px] font-bold">2</span>
+                        Preferred Date
+                    </label>
+                    <input type="date" id="date" required
+                           class="w-full bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white rounded-2xl px-5 py-4 border-none focus:ring-2 focus:ring-blue-500 outline-none transition-shadow cursor-pointer dark:[color-scheme:dark]">
+                </div>
+
+                <!-- STEP 3: Available Slots -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between ml-1">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-[11px] font-bold">3</span>
+                            Preferred Start Time
+                        </label>
+                        <span class="text-[11px] text-gray-400 dark:text-gray-500">Pick a start</span>
+                    </div>
+                    <div id="slot-options" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+                    <p id="slot-hint" class="text-sm text-gray-400 dark:text-gray-500 text-center py-6">
+                        Select a package and date to see available slots.
+                    </p>
+                </div>
+
+                <!-- Booking Summary -->
+                <div id="booking-summary" class="hidden bg-gray-50 dark:bg-gray-900/60 rounded-2xl p-5 border border-gray-100 dark:border-gray-800">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500 mb-3">Your Booking</p>
+                    <div class="flex items-center justify-between text-sm mb-2">
+                        <span class="text-gray-500 dark:text-gray-400">Package</span>
+                        <span id="sum-pkg" class="font-semibold">&mdash;</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm mb-2">
+                        <span class="text-gray-500 dark:text-gray-400">Date</span>
+                        <span id="sum-date" class="font-semibold">&mdash;</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm mb-2">
+                        <span class="text-gray-500 dark:text-gray-400">Slot</span>
+                        <span id="sum-slot" class="font-semibold">&mdash;</span>
+                    </div>
+                    <div class="flex items-center justify-between text-base pt-3 mt-3 border-t border-gray-200 dark:border-gray-700">
+                        <span class="font-semibold">Total</span>
+                        <span id="sum-total" class="font-bold">&mdash;</span>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full bg-[#25D366] text-white py-4 rounded-2xl font-semibold text-lg hover:scale-[1.02] active:scale-[0.98] transition-transform duration-300 shadow-lg flex justify-center items-center gap-2">
+                        Confirm Slot on WhatsApp <i class="ph ph-whatsapp-logo text-xl"></i>
+                    </button>
+                    <p class="text-center text-xs text-gray-400 dark:text-gray-500 mt-3">Opens WhatsApp with your booking details pre-filled &mdash; just hit send.</p>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Let's Talk Footer -->
+    <footer class="max-w-7xl mx-auto px-6 mb-32 md:mb-16 scroll-mt-32">
+        <div class="bg-white dark:bg-ios-cardDark rounded-[3rem] p-10 md:p-16 shadow-soft border border-gray-100 dark:border-gray-800 flex flex-col md:flex-row items-center justify-between gap-12">
+            <div class="flex-1 text-center md:text-left max-w-xl">
+                <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 text-gray-900 dark:text-white">Let's Talk.</h2>
+                <p class="text-gray-500 dark:text-gray-400 mb-8 text-lg leading-relaxed">
+                    Ready to bring your vision to life? Reach out to discuss your next project or inquire about rates.
+                </p>
+                <a href="mailto:cityfoxmedia2026@gmail.com" class="inline-flex items-center justify-center bg-gray-900 text-white dark:bg-white dark:text-black px-8 py-3.5 rounded-full font-semibold text-sm hover:scale-105 transition-transform duration-300 shadow-md">
+                   cityfoxmedia2026@gmail.com
+                </a>
+            </div>
+            <div class="flex flex-col items-center justify-center md:border-l border-gray-200 dark:border-gray-800 md:pl-12 gap-8 w-full md:w-auto">
+                <div class="flex gap-4">
+                    <a href="https://www.instagram.com/cityfox.media?obrf=MXVlYWtoNmdzeWE4Yw%3D%3D&utm_source=qr" aria-label="Instagram" class="w-14 h-14 rounded-full bg-gray-50 dark:bg-gray-900 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300">
+                        <i class="ph ph-instagram-logo text-2xl"></i>
+                    </a>
+                    <a href="#" aria-label="LinkedIn" class="w-14 h-14 rounded-full bg-gray-50 dark:bg-gray-900 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300">
+                        <i class="ph ph-linkedin-logo text-2xl"></i>
+                    </a>
+                    <a href="https://wa.me/9344067723" target="_blank" aria-label="WhatsApp" class="w-14 h-14 rounded-full bg-gray-50 dark:bg-gray-900 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-700 dark:text-gray-300">
+                        <i class="ph ph-whatsapp-logo text-2xl"></i>
+                    </a>
+                </div>
+                <p class="text-xs font-semibold text-gray-400">&copy; 2026 CityFox Studio.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom iOS Alert Modal -->
+    <div id="ios-alert" class="fixed top-1/2 left-1/2 z-[60] w-[85%] max-w-sm glass-nav rounded-[2rem] p-6 shadow-2xl flex flex-col items-center text-center">
+        <div class="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4 text-green-600 dark:text-green-400">
+            <i class="ph ph-check-circle text-4xl"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">Booking Confirmed</h3>
+        <p id="alert-detail" class="text-sm text-gray-500 dark:text-gray-400 mb-5">We've opened WhatsApp with your details &mdash; just hit send. Our team will confirm shortly.</p>
+        <div class="w-full bg-gray-50 dark:bg-gray-900/60 rounded-2xl p-4 mb-6 text-left space-y-2">
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-500 dark:text-gray-400">Package</span>
+                <span id="conf-pkg" class="font-semibold text-right">&mdash;</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-500 dark:text-gray-400">Date</span>
+                <span id="conf-date" class="font-semibold text-right">&mdash;</span>
+            </div>
+            <div class="flex items-center justify-between text-sm">
+                <span class="text-gray-500 dark:text-gray-400">Slot</span>
+                <span id="conf-slot" class="font-semibold text-right">&mdash;</span>
+            </div>
+            <div class="flex items-center justify-between text-sm pt-2 mt-1 border-t border-gray-200 dark:border-gray-700">
+                <span class="font-semibold">Total</span>
+                <span id="conf-total" class="font-bold text-right">&mdash;</span>
+            </div>
+        </div>
+        <button onclick="closeAlert()" class="w-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-semibold py-3 rounded-xl transition-colors">
+            Done
+        </button>
+    </div>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md cursor-zoom-out" onclick="closeLightbox()">
+        <button class="absolute top-6 right-6 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-xl transition-colors z-50 cursor-pointer" onclick="closeLightbox(event)">
+            <i class="ph ph-x text-2xl"></i>
+        </button>
+        <img id="lightbox-img" src="" alt="Fullscreen Image" class="max-w-[95%] max-h-[95vh] object-contain rounded-xl shadow-2xl" onclick="event.stopPropagation()">
+    </div>
+
+    <script>
+        // --- Theme Toggle ---
+        const themeToggleBtns = [document.getElementById('theme-toggle'), document.getElementById('theme-toggle-mobile')];
+        const htmlElement = document.documentElement;
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            htmlElement.classList.add('dark');
+        } else {
+            htmlElement.classList.remove('dark');
+        }
+        themeToggleBtns.forEach(btn => {
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    htmlElement.classList.toggle('dark');
+                    localStorage.theme = htmlElement.classList.contains('dark') ? 'dark' : 'light';
+                });
+            }
+        });
+
+        // ====== SET YOUR STUDIO WHATSAPP NUMBER HERE ======
+        // Full international format, digits only (country code + number, no +, spaces or dashes).
+        // Example for India: '919344067723'  (91 = country code)
+        const STUDIO_WHATSAPP = '919344067723';
+
+        // ====== PRIVATE EMAIL ON SUBMIT (Web3Forms) ======
+        // Free account at https://web3forms.com → create an access key, set the
+        // destination email there (stays private, customer never sees it), paste key below.
+        // Leave as-is to disable email; WhatsApp still works either way.
+        const STUDIO_WEB3FORMS_KEY = 'd046dc1d-c477-4a15-8b50-60106faafb01';
+        // ==================================================
+
+        // --- Slot Booking Feature ---
+        const STUDIO_START = 9;   // 9:00 AM
+        const STUDIO_END   = 21;  // 9:00 PM
+
+        const PACKAGES = {
+            diwali:  { name: 'Diwali Special (First Frame)', duration: 1, price: 299, max: 2 },
+            quick:   { name: 'First Frame',          duration: 1,  price: 699 },
+            creator: { name: 'Creator Pack',        duration: 3,  price: 1799 },
+            halfday: { name: 'Half-Day Production', duration: 6,  price: 3499 },
+            fullday: { name: 'Full-Day Production', duration: 12, price: 6799 },
+        };
+
+        // Diwali limited-time sale window
+        const DIWALI_END = new Date('2026-11-06T23:59:59');
+        let diwaliExpired = false;
+
+        const state = { cart: { diwali: 0, quick: 0, creator: 0, halfday: 0, fullday: 0 }, date: null, start: null };
+
+        const dateInput    = document.getElementById('date');
+        const slotWrap      = document.getElementById('slot-options');
+        const slotHint      = document.getElementById('slot-hint');
+        const summaryBox    = document.getElementById('booking-summary');
+        const cartHoursEl   = document.getElementById('cart-hours');
+
+        // Local YYYY-MM-DD (avoids UTC off-by-one that could expose yesterday late at night)
+        function localISO(d) {
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        }
+
+        // Default date = today, min = today (no past dates selectable)
+        const today = new Date();
+        const iso = localISO(today);
+        dateInput.min = iso;
+        dateInput.value = iso;
+        state.date = iso;
+
+        function fmtHour(h) {
+            const period = h >= 12 && h < 24 ? 'PM' : 'AM';
+            let hour = h % 12;
+            if (hour === 0) hour = 12;
+            return hour + ':00 ' + period;
+        }
+
+        function inr(n) { return '₹' + n.toLocaleString('en-IN'); }
+
+        function prettyDate(dateStr) {
+            const d = new Date(dateStr + 'T00:00:00');
+            return d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        const STUDIO_SPAN = STUDIO_END - STUDIO_START; // 12 hours
+
+        function cartEntries() {
+            return Object.keys(PACKAGES)
+                .filter(function (k) { return state.cart[k] > 0; })
+                .map(function (k) { return { key: k, p: PACKAGES[k], qty: state.cart[k] }; });
+        }
+        function totalHours() {
+            return cartEntries().reduce(function (h, e) { return h + e.p.duration * e.qty; }, 0);
+        }
+        function totalPrice() {
+            return cartEntries().reduce(function (s, e) { return s + e.p.price * e.qty; }, 0);
+        }
+        function cartLabel() {
+            return cartEntries().map(function (e) { return e.p.name + ' ×' + e.qty; }).join(' + ');
+        }
+
+        function renderCart() {
+            const h = totalHours();
+            Object.keys(PACKAGES).forEach(function (k) {
+                const qty = state.cart[k];
+                document.querySelectorAll('.pkg-qty[data-pkg="' + k + '"]').forEach(function (el) { el.textContent = qty; });
+                document.querySelectorAll('.pkg-card[data-pkg="' + k + '"]').forEach(function (el) { el.classList.toggle('selected', qty > 0); });
+                document.querySelectorAll('.pkg-step[data-pkg="' + k + '"][data-step="-1"]').forEach(function (b) { b.disabled = qty === 0; });
+                document.querySelectorAll('.pkg-step[data-pkg="' + k + '"][data-step="1"]').forEach(function (b) {
+                    const max = PACKAGES[k].max || Infinity;
+                    const atMax = state.cart[k] >= max;
+                    const overSpan = h + PACKAGES[k].duration > STUDIO_SPAN;
+                    b.disabled = atMax || overSpan || (k === 'diwali' && diwaliExpired);
+                });
+            });
+            if (h > 0) {
+                cartHoursEl.classList.remove('hidden');
+                cartHoursEl.textContent = 'Total: ' + h + ' hour' + (h > 1 ? 's' : '') + '  ·  ' + inr(totalPrice());
+            } else {
+                cartHoursEl.classList.add('hidden');
+            }
+            renderStartTimes();
+        }
+
+        function changeQty(key, delta) {
+            if (delta > 0) {
+                if (key === 'diwali' && diwaliExpired) return;
+                const max = PACKAGES[key].max || Infinity;
+                if ((state.cart[key] || 0) + delta > max) return;          // per-package cap (Diwali = 2)
+                if (totalHours() + PACKAGES[key].duration > STUDIO_SPAN) return; // studio 12-hour day
+            }
+            let next = Math.max(0, (state.cart[key] || 0) + delta);
+            state.cart[key] = next;
+            renderCart();
+        }
+
+        function renderStartTimes() {
+            slotWrap.innerHTML = '';
+            state.start = null;
+            const h = totalHours();
+
+            if (h === 0 || !state.date) {
+                slotHint.classList.remove('hidden');
+                slotHint.textContent = 'Add at least one package and pick a date to choose a start time.';
+                updateSummary();
+                return;
+            }
+
+            if (h >= STUDIO_SPAN) {
+                slotHint.classList.remove('hidden');
+                slotHint.textContent = 'Your selection fills the full day — the studio is reserved for you 9:00 AM – 9:00 PM.';
+                const label = fmtHour(STUDIO_START) + ' – ' + fmtHour(STUDIO_END) + ' (Full Day)';
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'option-btn slot-btn selected bg-gray-100 dark:bg-gray-900 rounded-2xl px-4 py-3.5 border-2 border-transparent flex items-center justify-between';
+                btn.innerHTML =
+                    '<span class="slot-time text-sm font-semibold">' + label + '</span>' +
+                    '<span class="slot-dot w-2.5 h-2.5 rounded-full bg-green-500"></span>';
+                state.start = label;
+                slotWrap.appendChild(btn);
+                updateSummary();
+                return;
+            }
+
+            const starts = [];
+            for (let s = STUDIO_START; s + h <= STUDIO_END; s++) {
+                starts.push(s);
+            }
+
+            slotHint.classList.remove('hidden');
+            slotHint.textContent = 'Pick when your ' + h + '-hour session should start.';
+
+            // Grey out start times already passed when the chosen date is today
+            const now = new Date();
+            const localToday = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+            const isToday = state.date === localToday;
+            const nowDecimal = now.getHours() + now.getMinutes() / 60;
+
+            starts.forEach(function (s) {
+                const label = fmtHour(s) + ' – ' + fmtHour(s + h);
+                const past = isToday && s < nowDecimal;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.disabled = past;
+                if (past) {
+                    btn.className = 'option-btn slot-btn bg-gray-100 dark:bg-gray-900 rounded-2xl px-4 py-3.5 border-2 border-transparent flex items-center justify-between opacity-40 cursor-not-allowed';
+                    btn.innerHTML =
+                        '<span class="slot-time text-sm font-semibold line-through">' + label + '</span>' +
+                        '<span class="text-xs font-medium text-gray-400">Passed</span>';
+                    slotWrap.appendChild(btn);
+                    return;
+                }
+                btn.className = 'option-btn slot-btn bg-gray-100 dark:bg-gray-900 rounded-2xl px-4 py-3.5 border-2 border-transparent flex items-center justify-between';
+                btn.innerHTML =
+                    '<span class="slot-time text-sm font-semibold">' + label + '</span>' +
+                    '<span class="slot-dot w-2.5 h-2.5 rounded-full bg-green-500"></span>';
+                btn.addEventListener('click', function () {
+                    state.start = label;
+                    document.querySelectorAll('#slot-options .slot-btn').forEach(function (b) { b.classList.remove('selected'); });
+                    btn.classList.add('selected');
+                    updateSummary();
+                });
+                slotWrap.appendChild(btn);
+            });
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const h = totalHours();
+            const needsStart = h > 0 && h < STUDIO_SPAN;
+            const ready = h > 0 && state.date && (!needsStart || state.start);
+            if (ready) {
+                document.getElementById('sum-pkg').textContent = cartLabel() + '  ·  ' + h + ' hr total';
+                document.getElementById('sum-date').textContent = prettyDate(state.date);
+                document.getElementById('sum-slot').textContent = state.start || '9:00 AM – 9:00 PM (Full Day)';
+                document.getElementById('sum-total').textContent = inr(totalPrice());
+                summaryBox.classList.remove('hidden');
+            } else {
+                summaryBox.classList.add('hidden');
+            }
+        }
+
+        // Package quantity steppers (inside the form)
+        document.querySelectorAll('.pkg-step').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                changeQty(btn.dataset.pkg, parseInt(btn.dataset.step, 10));
+            });
+        });
+
+        // Pricing-card "Select" buttons → add that package to the cart, then scroll to the form
+        document.querySelectorAll('.plan-select-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                changeQty(btn.dataset.pkg, 1);
+                document.getElementById('booking-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        });
+
+        dateInput.addEventListener('change', function () {
+            const todayISO = localISO(new Date());
+            if (dateInput.min !== todayISO) dateInput.min = todayISO; // keep min fresh past midnight
+            // Reject a past date (e.g. typed manually) and snap back to today
+            if (dateInput.value && dateInput.value < todayISO) {
+                dateInput.value = todayISO;
+            }
+            state.date = dateInput.value;
+            renderStartTimes();
+        });
+
+        // --- Form Submission ---
+        const bookingForm = document.getElementById('booking-form');
+        const iosAlert = document.getElementById('ios-alert');
+
+        bookingForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const h = totalHours();
+            if (h === 0) { alert('Please add at least one package.'); return; }
+            if (!state.date) { alert('Please pick a date.'); return; }
+            if (state.date < localISO(new Date())) { alert('Please pick today or a future date.'); return; }
+            const needsStart = h < STUDIO_SPAN;
+            if (needsStart && !state.start) { alert('Please pick a start time.'); return; }
+
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const dateText = prettyDate(state.date);
+            const pkgText = cartLabel();
+            const hoursText = h + ' hour' + (h > 1 ? 's' : '');
+            const slotText = state.start || '9:00 AM – 9:00 PM (Full Day)';
+            const totalText = inr(totalPrice());
+            const confPkgText = pkgText + '  ·  ' + hoursText;
+
+            // 1) Send a private email copy to the studio FIRST (keepalive so it
+            //    completes even if opening WhatsApp navigates this tab on mobile).
+            if (STUDIO_WEB3FORMS_KEY && STUDIO_WEB3FORMS_KEY.indexOf('YOUR_') === -1) {
+                fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    keepalive: true,
+                    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                    body: JSON.stringify({
+                        access_key: STUDIO_WEB3FORMS_KEY,
+                        subject: 'New Slot Booking — ' + name + ' (' + pkgText + ')',
+                        from_name: 'CityFox Website',
+                        Name: name,
+                        Mobile: phone,
+                        Packages: pkgText,
+                        Hours: hoursText,
+                        Date: dateText,
+                        Time: slotText,
+                        Total: totalText,
+                        message:
+                            'New slot booking\n\n' +
+                            'Name: ' + name + '\n' +
+                            'Mobile: ' + phone + '\n' +
+                            'Package(s): ' + pkgText + '\n' +
+                            'Total Hours: ' + hoursText + '\n' +
+                            'Date: ' + dateText + '\n' +
+                            'Time: ' + slotText + '\n' +
+                            'Total: ' + totalText
+                    })
+                }).catch(function () { /* silent: WhatsApp still delivers the booking */ });
+            }
+
+            // 2) Open WhatsApp (synchronous — stays within the user gesture, avoids popup block)
+            const message = encodeURIComponent(
+                '*New Slot Booking — CityFox Studio*\n\n' +
+                'Name: ' + name + '\n' +
+                'Mobile: ' + phone + '\n' +
+                'Package(s): ' + pkgText + '\n' +
+                'Total Hours: ' + hoursText + '\n' +
+                'Date: ' + dateText + '\n' +
+                'Time: ' + slotText + '\n' +
+                'Total: ' + totalText + '\n\n' +
+                'Please confirm availability.'
+            );
+            window.open('https://wa.me/' + STUDIO_WHATSAPP + '?text=' + message, '_blank');
+
+            // 3) Show the confirmation screen
+            document.getElementById('conf-pkg').textContent = confPkgText;
+            document.getElementById('conf-date').textContent = dateText;
+            document.getElementById('conf-slot').textContent = slotText;
+            document.getElementById('conf-total').textContent = totalText;
+            iosAlert.classList.add('active');
+
+            // 4) Reset the form
+            bookingForm.reset();
+            state.cart = { diwali: 0, quick: 0, creator: 0, halfday: 0, fullday: 0 };
+            state.start = null;
+            dateInput.value = iso; state.date = iso;
+            renderCart();
+        });
+
+        function closeAlert() { iosAlert.classList.remove('active'); }
+
+        // --- Lightbox ---
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+
+        function openLightbox(element) {
+            const imgElement = element.querySelector('img');
+            lightboxImg.src = imgElement.src.replace('w=800', 'w=1600');
+            lightbox.classList.add('active');
+            document.body.classList.add('modal-open');
+        }
+        function closeLightbox(event) {
+            if (event) event.stopPropagation();
+            lightbox.classList.remove('active');
+            document.body.classList.remove('modal-open');
+            setTimeout(() => { if (!lightbox.classList.contains('active')) lightboxImg.src = ''; }, 400);
+        }
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && lightbox.classList.contains('active')) closeLightbox();
+        });
+
+        // --- Per-container photo swipers (each holds 2 photos + its own dots) ---
+        document.querySelectorAll('.photo-swiper').forEach(function (swiper) {
+            const track = swiper.querySelector('.swiper-track');
+            const dotsWrap = swiper.querySelector('.swiper-dots');
+            const slides = track.querySelectorAll('.swiper-slide');
+            if (slides.length < 2) return;
+
+            slides.forEach(function (_, i) {
+                const dot = document.createElement('button');
+                dot.setAttribute('aria-label', 'Photo ' + (i + 1));
+                dot.className = 'swiper-dot h-2 rounded-full bg-gray-300 dark:bg-gray-700 transition-all duration-300';
+                dot.style.width = '8px';
+                dot.addEventListener('click', function () {
+                    track.scrollTo({ left: i * track.clientWidth, behavior: 'smooth' });
+                });
+                dotsWrap.appendChild(dot);
+            });
+            const dots = dotsWrap.querySelectorAll('.swiper-dot');
+
+            function sync() {
+                const idx = Math.round(track.scrollLeft / track.clientWidth);
+                dots.forEach(function (d, i) {
+                    const active = i === idx;
+                    d.classList.toggle('bg-orange-500', active);
+                    d.classList.toggle('bg-gray-300', !active);
+                    d.classList.toggle('dark:bg-gray-700', !active);
+                    d.style.width = active ? '20px' : '8px';
+                });
+            }
+
+            let raf;
+            track.addEventListener('scroll', function () {
+                cancelAnimationFrame(raf);
+                raf = requestAnimationFrame(sync);
+            });
+            sync();
+        });
+
+        // --- Diwali offer: days-left badge + auto-expiry ---
+        (function initDiwali() {
+            const badge = document.getElementById('diwali-days');
+            const offerCard = document.getElementById('diwali-offer');
+            const now = new Date();
+            const dayMs = 86400000;
+            const daysLeft = Math.ceil((DIWALI_END - now) / dayMs);
+            diwaliExpired = now > DIWALI_END;
+
+            if (diwaliExpired) {
+                if (badge) badge.textContent = 'Offer ended';
+                if (offerCard) offerCard.classList.add('opacity-50', 'pointer-events-none', 'grayscale');
+                document.querySelectorAll('[data-pkg="diwali"]').forEach(function (el) {
+                    if (el.tagName === 'BUTTON') el.disabled = true;
+                });
+            } else if (badge) {
+                badge.textContent = daysLeft <= 1 ? '⏳ Last day!' : '⏳ ' + daysLeft + ' days left';
+            }
+        })();
+
+        // Initial render
+        renderCart();
+    </script>
+</body>
+</html>
