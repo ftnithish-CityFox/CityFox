@@ -120,6 +120,15 @@
         }
         .option-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .option-btn:disabled .slot-time { text-decoration: line-through; }
+
+        /* --- FAQ accordion --- */
+        .faq-answer {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .faq-item.open .faq-answer { grid-template-rows: 1fr; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); }
     </style>
 </head>
 <body class="bg-ios-light dark:bg-ios-dark text-gray-900 dark:text-gray-100 transition-colors duration-500 pb-36 md:pb-0">
@@ -610,6 +619,91 @@
         </div>
     </section>
 
+    <!-- FAQ Section -->
+    <section id="faq" class="max-w-4xl mx-auto px-6 mb-32 scroll-mt-32">
+        <div class="text-center mb-12">
+            <h2 class="text-4xl md:text-5xl font-bold tracking-tight">Frequently Asked</h2>
+            <p class="text-gray-500 dark:text-gray-400 mt-4">Everything you need to know before booking the studio.</p>
+        </div>
+
+        <div class="space-y-4" id="faq-list">
+            <!-- FAQ Item -->
+            <div class="faq-item bg-white dark:bg-ios-cardDark rounded-[1.75rem] border border-gray-100 dark:border-gray-800 shadow-soft overflow-hidden transition-colors duration-300">
+                <button type="button" class="faq-toggle w-full flex items-center justify-between gap-4 text-left px-6 py-5 md:px-8 md:py-6">
+                    <span class="font-semibold text-base md:text-lg">What's included in a studio booking?</span>
+                    <i class="ph ph-plus faq-icon text-xl text-orange-500 flex-shrink-0 transition-transform duration-300"></i>
+                </button>
+                <div class="faq-answer">
+                    <div class="overflow-hidden">
+                        <p class="px-6 pb-6 md:px-8 md:pb-7 text-gray-600 dark:text-gray-400 leading-relaxed">
+                            Your rental includes full access to the content studio space with professional lighting setup, backdrops, and seating. Bring your own camera and props, or ask us in advance about what's available on-site.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ Item -->
+            <div class="faq-item bg-white dark:bg-ios-cardDark rounded-[1.75rem] border border-gray-100 dark:border-gray-800 shadow-soft overflow-hidden transition-colors duration-300">
+                <button type="button" class="faq-toggle w-full flex items-center justify-between gap-4 text-left px-6 py-5 md:px-8 md:py-6">
+                    <span class="font-semibold text-base md:text-lg">How do I confirm my booking?</span>
+                    <i class="ph ph-plus faq-icon text-xl text-orange-500 flex-shrink-0 transition-transform duration-300"></i>
+                </button>
+                <div class="faq-answer">
+                    <div class="overflow-hidden">
+                        <p class="px-6 pb-6 md:px-8 md:pb-7 text-gray-600 dark:text-gray-400 leading-relaxed">
+                            Pick your package, date, and time slot in the booking form, then tap Confirm. Your request reaches us on WhatsApp and email instantly. We reply within 1&ndash;2 hours to confirm availability and lock your slot.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ Item -->
+            <div class="faq-item bg-white dark:bg-ios-cardDark rounded-[1.75rem] border border-gray-100 dark:border-gray-800 shadow-soft overflow-hidden transition-colors duration-300">
+                <button type="button" class="faq-toggle w-full flex items-center justify-between gap-4 text-left px-6 py-5 md:px-8 md:py-6">
+                    <span class="font-semibold text-base md:text-lg">Can I reschedule or cancel?</span>
+                    <i class="ph ph-plus faq-icon text-xl text-orange-500 flex-shrink-0 transition-transform duration-300"></i>
+                </button>
+                <div class="faq-answer">
+                    <div class="overflow-hidden">
+                        <p class="px-6 pb-6 md:px-8 md:pb-7 text-gray-600 dark:text-gray-400 leading-relaxed">
+                            Yes. Message us on WhatsApp as early as you can and we'll do our best to move your slot to another available time. We recommend giving us at least 24 hours' notice.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ Item -->
+            <div class="faq-item bg-white dark:bg-ios-cardDark rounded-[1.75rem] border border-gray-100 dark:border-gray-800 shadow-soft overflow-hidden transition-colors duration-300">
+                <button type="button" class="faq-toggle w-full flex items-center justify-between gap-4 text-left px-6 py-5 md:px-8 md:py-6">
+                    <span class="font-semibold text-base md:text-lg">What are the studio hours?</span>
+                    <i class="ph ph-plus faq-icon text-xl text-orange-500 flex-shrink-0 transition-transform duration-300"></i>
+                </button>
+                <div class="faq-answer">
+                    <div class="overflow-hidden">
+                        <p class="px-6 pb-6 md:px-8 md:pb-7 text-gray-600 dark:text-gray-400 leading-relaxed">
+                            The studio is open every day from 9:00 AM to 9:00 PM, giving you up to 12 hours of daily booking capacity. You can book a single hour or the full day, or combine packages to fit your shoot.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ Item -->
+            <div class="faq-item bg-white dark:bg-ios-cardDark rounded-[1.75rem] border border-gray-100 dark:border-gray-800 shadow-soft overflow-hidden transition-colors duration-300">
+                <button type="button" class="faq-toggle w-full flex items-center justify-between gap-4 text-left px-6 py-5 md:px-8 md:py-6">
+                    <span class="font-semibold text-base md:text-lg">Where is the studio located?</span>
+                    <i class="ph ph-plus faq-icon text-xl text-orange-500 flex-shrink-0 transition-transform duration-300"></i>
+                </button>
+                <div class="faq-answer">
+                    <div class="overflow-hidden">
+                        <p class="px-6 pb-6 md:px-8 md:pb-7 text-gray-600 dark:text-gray-400 leading-relaxed">
+                            CityFox is on the 1st floor of the Lenovo building, opposite Boomerang, Coimbatore, Tamil Nadu 641004. Message us on WhatsApp and we'll share a live location pin.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Let's Talk Footer -->
     <footer class="max-w-7xl mx-auto px-6 mb-32 md:mb-16 scroll-mt-32">
         <div class="bg-white dark:bg-ios-cardDark rounded-[3rem] p-10 md:p-16 shadow-soft border border-gray-100 dark:border-gray-800 flex flex-col md:flex-row items-center justify-between gap-12">
@@ -1060,6 +1154,43 @@
 
         // Initial render
         renderCart();
+
+        // --- FAQ Accordion ---
+        document.querySelectorAll('.faq-toggle').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const item = btn.closest('.faq-item');
+                const isOpen = item.classList.contains('open');
+
+                // Close all (accordion: one open at a time)
+                document.querySelectorAll('.faq-item').forEach(function (other) {
+                    other.classList.remove('open');
+                });
+
+                // Toggle this one
+                if (!isOpen) {
+                    item.classList.add('open');
+                }
+            });
+        });
+
+        // --- Scroll to Top ---
+        const scrollTopBtn = document.getElementById('scroll-top');
+        window.addEventListener('scroll', function () {
+            if (window.scrollY > 500) {
+                scrollTopBtn.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-2');
+            } else {
+                scrollTopBtn.classList.add('opacity-0', 'pointer-events-none', 'translate-y-2');
+            }
+        });
+        scrollTopBtn.addEventListener('click', function () {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
     </script>
+
+    <!-- Scroll to Top Button -->
+    <button id="scroll-top" aria-label="Scroll to top"
+            class="fixed bottom-28 md:bottom-8 right-6 z-40 w-12 h-12 rounded-full glass-nav shadow-soft dark:shadow-glow flex items-center justify-center text-gray-900 dark:text-white opacity-0 pointer-events-none translate-y-2 transition-all duration-300 hover:scale-110">
+        <i class="ph ph-arrow-up text-xl"></i>
+    </button>
 </body>
 </html>
