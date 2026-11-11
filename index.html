@@ -131,7 +131,7 @@
         .faq-item.open .faq-icon { transform: rotate(45deg); }
     </style>
 </head>
-<body class="bg-ios-light dark:bg-ios-dark text-gray-900 dark:text-gray-100 transition-colors duration-500 pb-36 md:pb-0">
+<body class="bg-ios-light dark:bg-ios-dark text-gray-900 dark:text-gray-100 transition-colors duration-500 pb-24 md:pb-0">
 
     <!-- Floating Glass Navigation (Desktop) -->
     <nav class="hidden md:flex fixed top-4 left-1/2 transform -translate-x-1/2 w-[95%] max-w-7xl z-40 glass-nav rounded-full px-6 py-3 shadow-soft dark:shadow-glow justify-between items-center transition-all duration-300">
@@ -174,7 +174,7 @@
     </nav>
 
     <!-- Mobile Bottom Tab Bar -->
-    <nav class="md:hidden fixed bottom-14 left-1/2 transform -translate-x-1/2 w-[90%] z-40 glass-nav rounded-3xl px-6 py-3 shadow-soft dark:shadow-glow flex justify-between items-center">
+    <nav class="md:hidden fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[90%] z-40 glass-nav rounded-3xl px-6 py-3 shadow-soft dark:shadow-glow flex justify-between items-center">
         <a href="#explore" class="flex flex-col items-center gap-1 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
             <i class="ph ph-squares-four text-2xl"></i>
             <span class="text-[10px] font-medium">Explore</span>
@@ -1172,25 +1172,6 @@
                 }
             });
         });
-
-        // --- Scroll to Top ---
-        const scrollTopBtn = document.getElementById('scroll-top');
-        window.addEventListener('scroll', function () {
-            if (window.scrollY > 500) {
-                scrollTopBtn.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-2');
-            } else {
-                scrollTopBtn.classList.add('opacity-0', 'pointer-events-none', 'translate-y-2');
-            }
-        });
-        scrollTopBtn.addEventListener('click', function () {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
     </script>
-
-    <!-- Scroll to Top Button -->
-    <button id="scroll-top" aria-label="Scroll to top"
-            class="fixed bottom-28 md:bottom-8 right-6 z-40 w-12 h-12 rounded-full glass-nav shadow-soft dark:shadow-glow flex items-center justify-center text-gray-900 dark:text-white opacity-0 pointer-events-none translate-y-2 transition-all duration-300 hover:scale-110">
-        <i class="ph ph-arrow-up text-xl"></i>
-    </button>
 </body>
 </html>
