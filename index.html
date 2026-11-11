@@ -479,7 +479,7 @@
         </div>
 
         <p class="text-center text-xs text-gray-400 dark:text-gray-500 mt-8 mb-16 max-w-2xl mx-auto">
-            Studio open 9:00 AM &ndash; 9:00 PM &middot; 12 hrs daily capacity. All figures are projections &mdash; final availability is confirmed on booking.
+            Studio open 9:00 AM &ndash; 9:00 PM &middot; 12 hrs daily capacity. All figures are projections. Final availability is confirmed on booking.
         </p>
 
         <div class="max-w-4xl mx-auto bg-white dark:bg-ios-cardDark rounded-[3rem] p-8 md:p-12 shadow-soft transition-colors duration-500 border border-gray-100 dark:border-gray-800 relative overflow-hidden">
@@ -510,7 +510,7 @@
                             <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-[11px] font-bold">1</span>
                             Choose Your Package(s)
                         </label>
-                        <span class="text-[11px] text-gray-400 dark:text-gray-500">Mix &amp; match &mdash; they add up</span>
+                        <span class="text-[11px] text-gray-400 dark:text-gray-500">Mix &amp; match, they add up</span>
                     </div>
                     <div id="package-options" class="grid grid-cols-2 lg:grid-cols-4 gap-3">
                         <div class="option-btn pkg-card bg-gray-100 dark:bg-gray-900 rounded-2xl px-4 py-3.5 border-2 border-transparent" data-pkg="quick">
@@ -607,7 +607,7 @@
                     <button type="submit" class="w-full bg-[#25D366] text-white py-4 rounded-2xl font-semibold text-lg hover:scale-[1.02] active:scale-[0.98] transition-transform duration-300 shadow-lg flex justify-center items-center gap-2">
                         Confirm Slot on WhatsApp <i class="ph ph-whatsapp-logo text-xl"></i>
                     </button>
-                    <p class="text-center text-xs text-gray-400 dark:text-gray-500 mt-3">Opens WhatsApp with your booking details pre-filled &mdash; just hit send.</p>
+                    <p class="text-center text-xs text-gray-400 dark:text-gray-500 mt-3">Opens WhatsApp with your booking details pre-filled. Just hit send.</p>
                     <div class="flex justify-center mt-4">
                         <span class="inline-flex items-center gap-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm font-medium px-4 py-2 rounded-full">
                             <i class="ph-fill ph-clock text-base text-[#25D366]"></i>
@@ -636,7 +636,7 @@
                 <div class="faq-answer">
                     <div class="overflow-hidden">
                         <p class="px-6 pb-6 md:px-8 md:pb-7 text-gray-600 dark:text-gray-400 leading-relaxed">
-                            Your rental includes full access to the content studio space with professional lighting setup, backdrops, and seating. We provide cameras, lighting, props, and backdrops on-site. Prefer your own gear? That works too &mdash; just let us know in advance what you'll need.
+                            Your rental includes full access to the content studio space with professional lighting setup, backdrops, and seating. We provide cameras, lighting, props, and backdrops on-site. Prefer your own gear? That works too! Just let us know in advance what you'll need.
                         </p>
                     </div>
                 </div>
@@ -739,7 +739,7 @@
             <i class="ph ph-check-circle text-4xl"></i>
         </div>
         <h3 class="text-xl font-bold mb-2">Booking Confirmed</h3>
-        <p id="alert-detail" class="text-sm text-gray-500 dark:text-gray-400 mb-5">We've opened WhatsApp with your details &mdash; just hit send. Our team will confirm shortly.</p>
+        <p id="alert-detail" class="text-sm text-gray-500 dark:text-gray-400 mb-5">We've opened WhatsApp with your details. Just hit send, and our team will confirm shortly.</p>
         <div class="w-full bg-gray-50 dark:bg-gray-900/60 rounded-2xl p-4 mb-6 text-left space-y-2">
             <div class="flex items-center justify-between text-sm">
                 <span class="text-gray-500 dark:text-gray-400">Package</span>
@@ -911,7 +911,7 @@
 
             if (h >= STUDIO_SPAN) {
                 slotHint.classList.remove('hidden');
-                slotHint.textContent = 'Your selection fills the full day — the studio is reserved for you 9:00 AM – 9:00 PM.';
+                slotHint.textContent = 'Your selection fills the full day. The studio is reserved for you 9:00 AM – 9:00 PM.';
                 const label = fmtHour(STUDIO_START) + ' – ' + fmtHour(STUDIO_END) + ' (Full Day)';
                 const btn = document.createElement('button');
                 btn.type = 'button';
@@ -1041,7 +1041,7 @@
                     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
                     body: JSON.stringify({
                         access_key: STUDIO_WEB3FORMS_KEY,
-                        subject: 'New Slot Booking — ' + name + ' (' + pkgText + ')',
+                        subject: 'New Slot Booking: ' + name + ' (' + pkgText + ')',
                         from_name: 'CityFox Website',
                         Name: name,
                         Mobile: phone,
@@ -1065,7 +1065,7 @@
 
             // 2) Open WhatsApp (synchronous — stays within the user gesture, avoids popup block)
             const message = encodeURIComponent(
-                '*New Slot Booking — CityFox Studio*\n\n' +
+                '*New Slot Booking: CityFox Studio*\n\n' +
                 'Name: ' + name + '\n' +
                 'Mobile: ' + phone + '\n' +
                 'Package(s): ' + pkgText + '\n' +
